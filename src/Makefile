@@ -27,7 +27,7 @@ CMD_OBJS = demux.o
 CMD_TARGET = demux
 CMD_LDLIBS = $(FFMPEG_LDLIBS)
 
-GUI_OBJS = gui.o main_screen.o frame_sequence.o toolbar.o
+GUI_OBJS = gui.o main_screen.o frame_sequence.o toolbar.o thumbnail.o
 GUI_TARGET = movie-cutter
 GUI_LDLIBS = $(GTK_LDLIBS) $(FFMPEG_LDLIBS)
 

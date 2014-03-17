@@ -6,6 +6,7 @@ extern "C" {
 #include "libavformat/avformat.h"
 }
 
+#include "thumbnail.h"
 #include <gtk/gtk.h>
 #include <deque>
 #include <stack>
@@ -32,6 +33,22 @@ public:
 	void zoom_in();
 	void zoom_out();
 
+	struct video_frame : public thumbnail {
+		video_frame(GtkWidget *container, int row, int column)
+			: thumbnail(container, row, column) {
+			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
+		}
+		video_frame(const video_frame &x) 
+			: thumbnail(x) {
+			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
+		}
+		video_frame &operator=(const video_frame &x) {
+			thumbnail::operator=(x);
+			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
+			return *this;
+		}
+	};
+
 	GdkPixbuf *get_current_frame();
 
 private:
@@ -39,26 +56,13 @@ private:
 	void clear_sequence();
 	void update_sequence(int64_t start, int64_t step);
 
-	struct thumbnail {
-		GtkWidget *btn_, *img_;
-		gulong handler_id_;
-
-		int64_t pts_;
-		int display_picture_number_, coded_picture_number_;
-
-		thumbnail(GtkWidget *container, int row, int column);
-		thumbnail(const thumbnail&);
-		void clear();
-		void set_from_avframe(AVFrame *frame);
-	};
-
-	void goto_frame(thumbnail *img);
-	static void sequence_goto_frame(GtkWidget*, thumbnail *img);
+	void goto_frame(video_frame *frame);
+	static void sequence_goto_frame(GtkWidget*, video_frame *frame);
 
 	GtkWidget *container_;
-	int n_thumbnails_;
-	std::vector<thumbnail> imgs_;
-	thumbnail *current_frame_;
+	int n_frames_;
+	std::vector<video_frame> frames_;
+	video_frame *current_frame_;
 	std::stack<std::tuple<int64_t, int64_t> > zoom_ins_;
 
 	demuxer *dmux_;
