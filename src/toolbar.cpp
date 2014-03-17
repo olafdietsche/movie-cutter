@@ -24,6 +24,11 @@ void sequence_zoomout(GtkWidget*, frame_sequence *sequence)
 	sequence->zoom_out();
 }
 
+void sequence_zoom_home(GtkWidget*, frame_sequence *sequence)
+{
+	sequence->zoom_home();
+}
+
 void main_fullscreen(GtkWidget*, main_screen *main)
 {
 	main->fullscreen();
@@ -90,6 +95,12 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_OUT);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_zoomout), sequence);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_HOME);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_zoom_home), sequence);
+
+	separator = gtk_separator_tool_item_new();
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), separator, -1);
 
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_FULLSCREEN);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);

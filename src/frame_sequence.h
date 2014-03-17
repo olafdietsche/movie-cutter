@@ -32,6 +32,7 @@ public:
 	void page_forward();
 	void zoom_in();
 	void zoom_out();
+	void zoom_home();
 
 	struct video_frame : public thumbnail {
 		video_frame(GtkWidget *container, int row, int column)

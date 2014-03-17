@@ -191,6 +191,20 @@ void frame_sequence::zoom_out()
 	}
 }
 
+void frame_sequence::zoom_home()
+{
+	if (!zoom_ins_.empty()) {
+		int64_t first, step;
+
+		do {
+			std::tie(first, step) = zoom_ins_.top();
+			zoom_ins_.pop();
+		} while (!zoom_ins_.empty());
+
+		update_sequence(first, step);
+	}
+}
+
 void frame_sequence::goto_frame(video_frame *frame)
 {
 	current_frame_ = frame;
