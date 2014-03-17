@@ -26,16 +26,17 @@ demuxer::~demuxer()
 	av_frame_free(&frame_);
 }
 
+int64_t demuxer::start_timestamp(AVStream *st)
+{
+	return st->start_time == AV_NOPTS_VALUE ? 0 : st->start_time;
+}
+
 int64_t demuxer::rescale_timestamp(AVStream *st, int64_t ts)
 {
 	if (ts < 0)
 		av_log(st->codec, AV_LOG_WARNING, "rescale_timestamp: timestamp=%ld < 0\n", ts);
 
-	int64_t start = st->start_time;
-	if (start == AV_NOPTS_VALUE)
-		start = 0;
-
-	return av_rescale_q(ts, AV_TIME_BASE_Q, st->time_base) + start;
+	return av_rescale_q(ts, AV_TIME_BASE_Q, st->time_base) + start_timestamp(st);
 }
 
 int demuxer::open(const char *filename)

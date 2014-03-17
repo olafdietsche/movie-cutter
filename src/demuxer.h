@@ -19,6 +19,7 @@ public:
 	}
 	AVStream *get_stream(int i) { return fmt_ctx_->streams[i]; }
 	AVFrame *get_current_frame() { return frame_; }
+	static int64_t start_timestamp(AVStream *st);
 	static int64_t rescale_timestamp(AVStream *st, int64_t ts);
 	int64_t rescale_timestamp(int stream_index, int64_t ts) {
 		AVStream *st = get_stream(stream_index);

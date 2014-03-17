@@ -27,13 +27,14 @@ CMD_OBJS = demux.o
 CMD_TARGET = demux
 CMD_LDLIBS = $(FFMPEG_LDLIBS)
 
-GUI_OBJS = gui.o
+GUI_OBJS = gui.o main_screen.o frame_sequence.o toolbar.o
 GUI_TARGET = movie-cutter
 GUI_LDLIBS = $(GTK_LDLIBS) $(FFMPEG_LDLIBS)
 
 OBJS = $(GUI_OBJS) $(CMD_OBJS) $(FFMPEG_OBJS)
+TARGETS = $(CMD_TARGET) $(GUI_TARGET)
 
-all: $(GUI_TARGET) $(CMD_TARGET)
+all: $(TARGETS)
 
 $(GUI_TARGET): $(GUI_OBJS) $(FFMPEG_OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(GUI_OBJS) $(FFMPEG_OBJS) $(GUI_LDLIBS)
@@ -41,13 +42,12 @@ $(GUI_TARGET): $(GUI_OBJS) $(FFMPEG_OBJS)
 $(CMD_TARGET): $(CMD_OBJS) $(FFMPEG_OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(CMD_OBJS) $(FFMPEG_OBJS) $(CMD_LDLIBS)
 
-gui.o: demuxer.h converter.h
-demux.o: demuxer.h converter.h
-demuxer.o: demuxer.h
-converter.o: converter.h
+depend deps: .depends
+
+.depends:
+	$(CXX) -MM $(OBJS:.o=.cpp) >$@
 
 clean:
-	$(RM) $(TARGETS) $(OBJS)
+	$(RM) $(TARGETS) $(OBJS) .depends
 
-scribble-simple: scribble-simple.o
-	$(CXX) $(LDFLAGS) -o $@ scribble-simple.o $(GTK_LDLIBS)
+-include .depends
