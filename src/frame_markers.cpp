@@ -17,10 +17,15 @@ void frame_markers::marker::prefix_label()
 }
 
 frame_markers::frame_markers()
-	: container_(gtk_vbox_new(false, 0)),
+	: scrolled_(gtk_scrolled_window_new(NULL, NULL)),
+	  container_(gtk_vbox_new(false, 0)),
 	  current_marker_(0)
 {
 	g_object_set_data(G_OBJECT(container_), "x-app-object", this);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_), container_);
+	gtk_widget_show(container_);
+	adjust_scrolled_width();
 }
 
 void frame_markers::add_start_marker(const thumbnail *t)
@@ -37,31 +42,6 @@ void frame_markers::add_stop_marker(const thumbnail *t)
 	m.set_from_thumbnail(*t);
 	m.prefix_label();
 	insert_marker(m);
-}
-
-void frame_markers::insert_marker(const marker &m)
-{
-	for (auto i = markers_.begin(); i != markers_.end(); ++i) {
-		if (m.get_pts() < i->get_pts()) {
-			int pos = std::distance(markers_.begin(), i);
-			markers_.insert(i, m);
-			markers_[pos].pack(container_, pos);
-			return;
-		}
-	}
-
-	markers_.push_back(m);
-}
-
-void frame_markers::remove_marker(const marker &m)
-{
-	for (auto i = markers_.begin(); i != markers_.end(); ++i) {
-		if (m.get_pts() == i->get_pts()) {
-			i->destroy();
-			markers_.erase(i);
-			return;
-		}
-	}
 }
 
 void frame_markers::remove_current_marker()
@@ -97,6 +77,42 @@ frame_markers::marker_sequence frame_markers::get_markers()
 	}
 
 	return res;
+}
+
+void frame_markers::adjust_scrolled_width()
+{
+	marker dummy(container_, marker_start);
+	insert_marker(dummy);
+	GtkWidget *viewport = gtk_widget_get_parent(container_);
+	GtkRequisition min;
+	gtk_widget_size_request(viewport, &min);
+	gtk_widget_set_size_request (viewport, min.width + thumbnail::DEFAULT_WIDTH, -1);
+	remove_marker(dummy);
+}
+
+void frame_markers::insert_marker(const marker &m)
+{
+	for (auto i = markers_.begin(); i != markers_.end(); ++i) {
+		if (m.get_pts() < i->get_pts()) {
+			int pos = std::distance(markers_.begin(), i);
+			markers_.insert(i, m);
+			markers_[pos].pack(container_, pos);
+			return;
+		}
+	}
+
+	markers_.push_back(m);
+}
+
+void frame_markers::remove_marker(const marker &m)
+{
+	for (auto i = markers_.begin(); i != markers_.end(); ++i) {
+		if (m.get_pts() == i->get_pts()) {
+			i->destroy();
+			markers_.erase(i);
+			return;
+		}
+	}
 }
 
 void frame_markers::select_current(marker *frame)

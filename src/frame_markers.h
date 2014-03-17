@@ -11,10 +11,10 @@ public:
 	frame_markers();
 
 	void pack(GtkWidget *container) {
-		gtk_box_pack_start(GTK_BOX(container), container_, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(container), scrolled_, false, false, 0);
 	}
 
-	void show() { gtk_widget_show(container_); }
+	void show() { gtk_widget_show(scrolled_); }
 	void add_start_marker(const thumbnail *marker);
 	void add_stop_marker(const thumbnail *marker);
 	void remove_current_marker();
@@ -53,13 +53,14 @@ private:
 		marker_type type_;
 	};
 
+	void adjust_scrolled_width();
 	void insert_marker(const marker &m);
 	void remove_marker(const marker &m);
 	void select_current(marker *frame);
 
 	static void marker_select_current(GtkWidget*, marker *frame);
 
-	GtkWidget *container_;
+	GtkWidget *scrolled_, *container_;
 	std::vector<marker> markers_;
 	marker *current_marker_;
 

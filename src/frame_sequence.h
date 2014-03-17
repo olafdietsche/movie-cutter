@@ -71,8 +71,6 @@ private:
 	int64_t current_0_, current_step_;
 	int64_t minimum_step_;
 
-	static const int THUMBNAIL_WIDTH_ = 200;
-
 	frame_sequence();
 	frame_sequence(const frame_sequence &);
 	frame_sequence &operator=(const frame_sequence &);

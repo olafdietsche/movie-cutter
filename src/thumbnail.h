@@ -11,6 +11,8 @@ extern "C" {
 
 class thumbnail {
 public:
+	static const int DEFAULT_WIDTH = 200;
+
 	static GdkPixbuf *gdk_pixbuf_new_from_avframe(AVFrame *frame);
 
 	thumbnail();

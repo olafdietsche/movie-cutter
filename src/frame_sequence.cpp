@@ -89,7 +89,7 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 	AVStream *video_stream = dmux_.get_stream(video_stream_index_);
 	AVCodecContext *dec_ctx = video_stream->codec;
 	dmux_.seek(video_stream_index_, start);
-	converter conv(video_stream, AV_PIX_FMT_RGB24, THUMBNAIL_WIDTH_);
+	converter conv(video_stream, AV_PIX_FMT_RGB24, thumbnail::DEFAULT_WIDTH);
 	n_frames_ = 0;
 	for (auto i = frames_.begin(); i != frames_.end()
 		     && dmux_.read_next_packet(&pkt, video_stream_index_) >= 0; ) {
