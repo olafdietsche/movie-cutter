@@ -38,6 +38,11 @@ void main_leave_fullscreen(GtkWidget*, main_screen *main)
 {
 	main->leave_fullscreen();
 }
+
+void marker_delete(GtkWidget*, frame_markers *markers)
+{
+	markers->remove_current_marker();
+}
 }
 
 void marker_add_start(GtkWidget*, toolbar *bar)
@@ -71,6 +76,9 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_stop), this);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_DELETE);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_delete), markers);
 
 	separator = gtk_separator_tool_item_new();
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), separator, -1);

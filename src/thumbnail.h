@@ -18,6 +18,8 @@ public:
 	 * thumbnail(const thumbnail&);
 	 * thumbnail &operator=(const thumbnail&); */
 
+	void destroy() { gtk_widget_destroy(box_); box_ = NULL; }
+
 	void attach(GtkWidget *table, int row, int column) {
 		gtk_table_attach_defaults(GTK_TABLE(table), box_, column, column + 1, row, row + 1);
 	}
