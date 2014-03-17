@@ -28,6 +28,9 @@ demuxer::~demuxer()
 
 int64_t demuxer::rescale_timestamp(AVStream *st, int64_t ts)
 {
+	if (ts < 0)
+		av_log(st->codec, AV_LOG_WARNING, "rescale_timestamp: timestamp=%ld < 0\n", ts);
+
 	int64_t start = st->start_time;
 	if (start == AV_NOPTS_VALUE)
 		start = 0;
@@ -82,82 +85,17 @@ void demuxer::close()
 	avformat_close_input(&fmt_ctx_);
 }
 
-/*
-void demuxer::process_packet_queue()
+int demuxer::seek(int stream_index, int64_t pts)
 {
-	AVStream *st = fmt_ctx_->streams[pkt.stream_index];
-	AVCodecContext *dec_ctx = st->codec;
-	AVPacket tmp = pkt;
-	do {
-		av_log(fmt_ctx_, AV_LOG_DEBUG, "pkt: stream_index=%d, pts=%ld, flags=%x, convergence_duration=%ld\n", pkt.stream_index, pkt.pts, pkt.flags, pkt.convergence_duration);
-		if (decode_packet(dec_ctx, &tmp)) {
-			done = decoder(dec_ctx, frame_);
-			//av_frame_unref(frame_);
-			if (done)
-				break;
-		}
-	} while (tmp.size > 0);
-
-	av_free_packet(&pkt);
-}
-*/
-
-AVFrame *demuxer::seek(int stream_index, int64_t pts)
-{
-	av_log(fmt_ctx_, AV_LOG_INFO, "seek(%d, %ld)\n", stream_index, pts);
-	AVStream *st = fmt_ctx_->streams[stream_index];
-	AVCodecContext *dec_ctx = st->codec;
-	pts = av_rescale_q(pts, AV_TIME_BASE_Q, st->time_base);
-	if (st->start_time != AV_NOPTS_VALUE)
-		pts += st->start_time;
-
-	if (pts == 0)
-		pts = -st->first_dts;
-
-	av_log(fmt_ctx_, AV_LOG_INFO, "AV_NOPTS_VALUE=%ld, start_time=(%ld, %ld), first_dts=%ld, time_base=%d/%d;%d/%d, pts=%ld\n", AV_NOPTS_VALUE, st->start_time, fmt_ctx_->start_time, st->first_dts, st->time_base.num, st->time_base.den, dec_ctx->time_base.num, dec_ctx->time_base.den, pts);
-
-	int err = avformat_seek_file(fmt_ctx_, stream_index, st->first_dts, pts, pts, 0);
-	if (err < 0) {
+	AVStream *st = get_stream(stream_index);
+	avcodec_flush_buffers(st->codec);
+	int err = avformat_seek_file(fmt_ctx_, stream_index, 0, pts, pts, 0);
+	if (err < 0)
 		av_log(fmt_ctx_, AV_LOG_ERROR, "avformat_seek_file: err=%s\n", str_error(err));
-		return NULL;
-	}
-
-	AVPacket pkt;
-	av_init_packet(&pkt);
-	pkt.data = NULL;
-	pkt.size = 0;
-	int n_packets = 0;
-	bool got_frame = false;
-	for (;;) {
-		err = av_read_frame(fmt_ctx_, &pkt);
-		if (err < 0) {
-			av_log(fmt_ctx_, AV_LOG_ERROR, "av_read_frame: err=%s\n", str_error(err));
-			return NULL;
-		}
-
-		if (pkt.stream_index == stream_index) {
-			++n_packets;
-			if (pkt.flags & AV_PKT_FLAG_KEY)
-				av_log(fmt_ctx_, AV_LOG_INFO, "keyframe@%d, dts=%ld, pts=%ld\n", n_packets, pkt.dts, pkt.pts);
-
-			AVPacket tmp = pkt;
-			do {
-				got_frame = decode_packet(dec_ctx, &tmp);
-			} while (tmp.size > 0);
-
-			if (got_frame && pkt.pts >= pts) {
-				av_log(fmt_ctx_, AV_LOG_INFO, "n_packets=%d, dts=%ld, pts=%ld\n", n_packets, pkt.dts, pkt.pts);
-				break;
-			}
-		}
-
-		//av_free_packet(&pkt);
-	}
-
-	return got_frame ? frame_ : NULL;
+	return err;
 }
 
-AVFrame *demuxer::seek(AVMediaType codec_type, int64_t pts)
+int demuxer::seek(AVMediaType codec_type, int64_t pts)
 {
 	int stream_index = av_find_best_stream(fmt_ctx_, codec_type, -1, -1, NULL, 0);
 	return seek(stream_index, pts);
@@ -171,30 +109,6 @@ void demuxer::flush(AVPacket *pkt)
 	while (decode_packet(st->codec, pkt))
 		;
 }
-
-#if 0
-AVFrame *demuxer::get_next_frame()
-{
-	// read next packet if neccessary
-	if (pkt_.size == 0) {
-		if (orig_pkt_.data)
-			av_free_packet(&orig_pkt_);
-
-		int err = av_read_frame(fmt_ctx_, &pkt_);
-		if (err < 0) {
-			av_log(fmt_ctx_, AV_LOG_ERROR, "%s\n", str_error(err));
-			return NULL;
-		}
-
-		// save pkt.data for later av_free_packet()
-		orig_pkt_ = pkt_;
-	}
-
-	av_frame_unref(frame_);
-	
-	return frame_;
-}
-#endif
 
 bool demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
 {

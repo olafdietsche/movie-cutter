@@ -33,8 +33,8 @@ public:
 	bool decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt);
 	void flush(AVPacket *pkt);
 
-	AVFrame *seek(int stream_index, int64_t pts);
-	AVFrame *seek(AVMediaType codec_type, int64_t pts);
+	int seek(int stream_index, int64_t pts);
+	int seek(AVMediaType codec_type, int64_t pts);
 	void flush_packet_queue();
 	void push_packet(AVPacket *pkt);
 	//AVFrame *get_next_frame();

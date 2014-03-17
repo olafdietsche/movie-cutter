@@ -34,7 +34,8 @@ void frame_loop(demuxer &dmux)
 	int video_stream_index = dmux.get_stream_index(AVMEDIA_TYPE_VIDEO);
 	AVStream *video_stream = dmux.get_stream(video_stream_index);
 	AVCodecContext *dec_ctx = video_stream->codec;
-	int seconds = 0;
+	av_log(dec_ctx, AV_LOG_DEBUG, "time_base=(%d/%d), start_time=%ld, duration=%ld\n", video_stream->time_base.num, video_stream->time_base.den, video_stream->start_time, video_stream->duration);
+	int64_t seconds = 0;
 	int64_t stream_pts = demuxer::rescale_timestamp(video_stream, seconds * AV_TIME_BASE);
 	converter conv(video_stream, AV_PIX_FMT_RGB24);
 	while (dmux.read_next_packet(&pkt, video_stream_index) >= 0) {
@@ -44,9 +45,12 @@ void frame_loop(demuxer &dmux)
 				if (pkt.pts >= stream_pts) {
 					AVFrame *frame = dmux.get_current_frame();
 					AVFrame *dest = conv.convert_frame(frame);
-					//write_ppm_image(seconds, dest);
+					write_ppm_image(seconds, dest);
 					seconds += 30;
+					av_log(dec_ctx, AV_LOG_DEBUG, "seconds=%ld\n", seconds);
 					stream_pts = demuxer::rescale_timestamp(video_stream, seconds * AV_TIME_BASE);
+					dmux.seek(video_stream_index, stream_pts);
+					break;
 				}
 			}
 		} while (tmp.size > 0);
