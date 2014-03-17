@@ -7,15 +7,6 @@ extern "C" {
 #include <iomanip>
 #include <sstream>
 
-static const char *str_error(int err)
-{
-	static char errbuf[128];
-	if (av_strerror(err, errbuf, sizeof(errbuf)) >= 0)
-		return errbuf;
-
-	return strerror(AVUNERROR(err));
-}
-
 demuxer::demuxer()
 	: fmt_ctx_(0),
 	  frame_(av_frame_alloc())
@@ -85,14 +76,14 @@ int demuxer::open_input(const char *filename)
 	// open container
 	err = avformat_open_input(&fmt_ctx_, filename, NULL, NULL);
 	if (err < 0) {
-		av_log(NULL, AV_LOG_ERROR, "%s\n", str_error(err));
+		av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(err));
 		return err;
 	}
 
 	// look for container and stream types
 	err = avformat_find_stream_info(fmt_ctx_, NULL);
 	if (err < 0) {
-		av_log(fmt_ctx_, AV_LOG_ERROR, "%s\n", str_error(err));
+		av_log(fmt_ctx_, AV_LOG_ERROR, "%s\n", av_err2str(err));
 		return err;
 	}
 
@@ -111,7 +102,7 @@ int demuxer::open_input(const char *filename)
 		if (err < 0) {
 			av_log(dec_ctx, AV_LOG_ERROR, "Failed to open %s codec; %s\n",
 			       av_get_media_type_string(dec_ctx->codec_type),
-			       str_error(err));
+			       av_err2str(err));
 			return err;
 		}
 	}
@@ -136,7 +127,7 @@ int demuxer::seek(int stream_index, int64_t pts)
 	pts -= codec->gop_size * demuxer::ticks_per_frame(st);
 	int err = avformat_seek_file(fmt_ctx_, stream_index, INT64_MIN, pts, pts, 0);
 	if (err < 0)
-		av_log(fmt_ctx_, AV_LOG_ERROR, "avformat_seek_file: err=%s\n", str_error(err));
+		av_log(fmt_ctx_, AV_LOG_ERROR, "avformat_seek_file: err=%s\n", av_err2str(err));
 
 	return err;
 }
@@ -172,7 +163,7 @@ bool demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
 	}
 
 	if (size < 0) {
-		av_log(dec_ctx, AV_LOG_ERROR, "%s\n", str_error(size));
+		av_log(dec_ctx, AV_LOG_ERROR, "%s\n", av_err2str(size));
 		return false;
 	}
 
