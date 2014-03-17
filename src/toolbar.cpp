@@ -66,24 +66,20 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_stop), this);
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_PREVIOUS);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_REWIND);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_FORWARD);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_NEXT);
-	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 
 	separator = gtk_separator_tool_item_new();
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), separator, -1);
 
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_GO_BACK);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_PREVIOUS);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_REWIND);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_backward), sequence);
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_GO_FORWARD);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_FORWARD);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_forward), sequence);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_NEXT);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 
 	separator = gtk_separator_tool_item_new();
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), separator, -1);
