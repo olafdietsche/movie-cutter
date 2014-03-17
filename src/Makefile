@@ -21,7 +21,7 @@ FFMPEG_LDLIBS = $(shell pkg-config --libs libavformat libavcodec libavutil libsw
 CXXFLAGS = -Wall -g -std=c++0x $(FFMPEG_DEFINES) $(FFMPEG_INCLUDES) $(GTK_DEFINES) $(GTK_INCLUDES)
 CFLAGS = -Wall -g $(FFMPEG_DEFINES) $(FFMPEG_INCLUDES) $(GTK_DEFINES) $(GTK_INCLUDES)
 
-FFMPEG_OBJS = demuxer.o converter.o
+FFMPEG_OBJS = muxer.o demuxer.o converter.o
 
 CMD_OBJS = demux.o
 CMD_TARGET = demux

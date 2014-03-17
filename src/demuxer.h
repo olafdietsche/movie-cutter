@@ -16,6 +16,7 @@ public:
 	~demuxer();
 
 	AVFormatContext *get_format_context() { return fmt_ctx_; }
+	const AVFormatContext *get_format_context() const { return fmt_ctx_; }
 	int get_stream_index(AVMediaType codec_type) {
 		return av_find_best_stream(fmt_ctx_, codec_type, -1, -1, NULL, 0);
 	}

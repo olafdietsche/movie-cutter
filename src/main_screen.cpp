@@ -1,4 +1,6 @@
 #include "main_screen.h"
+#include "demuxer.h"
+#include "muxer.h"
 
 static int ROWS = 5, COLUMNS = 5;
 
@@ -26,7 +28,8 @@ main_screen::main_screen()
 
 void main_screen::update(const char *filename)
 {
-	sequence_.update_sequence(filename);
+	input_file_ = filename;
+	sequence_.update_sequence(input_file_.c_str());
 }
 
 void main_screen::fullscreen()
@@ -53,4 +56,52 @@ void main_screen::add_stop_marker()
 {
 	frame_sequence::video_frame *frame = sequence_.get_current_video_frame();
 	markers_.add_stop_marker(frame);
+}
+
+void main_screen::save_movie()
+{
+	GtkWidget *toplevel = gtk_widget_get_toplevel(vbox_);
+	GtkWidget *dlg = gtk_file_chooser_dialog_new("Save File",
+						     GTK_WINDOW(toplevel),
+						     GTK_FILE_CHOOSER_ACTION_SAVE,
+						     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+						     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+						     NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dlg), TRUE);
+	if (gtk_dialog_run(GTK_DIALOG(dlg)) != GTK_RESPONSE_ACCEPT)
+		return;
+
+	char *output_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+	demuxer dmux;
+	dmux.open_input(input_file_.c_str());
+	muxer mux;
+	mux.open_output(output_file, dmux.get_format_context());
+	g_free(output_file);
+	gtk_widget_destroy(dlg);
+
+	frame_markers::marker_sequence m = markers_.get_markers();
+	auto i = m.cbegin();
+
+	AVPacket pkt;
+	av_init_packet(&pkt);
+	pkt.data = NULL;
+	pkt.size = 0;
+
+	while (i != m.cend() && dmux.read_next_packet(&pkt) >= 0) {
+		while (pkt.pts >= i->start_) {
+			if (pkt.pts < i->stop_) {
+				mux.write_packet(&pkt);
+				break;
+			} else {
+				++i;
+				if (i == m.cend())
+					break;
+			}
+		}
+
+		av_free_packet(&pkt);
+	}
+
+	// flush cached frames
+	dmux.flush(&pkt);
 }

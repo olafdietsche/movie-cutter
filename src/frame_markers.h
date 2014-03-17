@@ -18,21 +18,29 @@ public:
 	void add_start_marker(const thumbnail *marker);
 	void add_stop_marker(const thumbnail *marker);
 	void remove_current_marker();
-private:
-	struct marker : public thumbnail {
-		enum marker_type { start, stop };
+	struct marker_segment {
+		int64_t start_, stop_;
+	};
 
+	typedef std::vector<marker_segment> marker_sequence;
+	marker_sequence get_markers();
+private:
+	enum marker_type { marker_start, marker_stop };
+
+	struct marker : public thumbnail {
 		marker(GtkWidget *container, marker_type type)
 			: thumbnail(),
 			  type_(type) {
 			pack(container);
 			connect_clicked(G_CALLBACK(marker_select_current), this);
 		}
+
 		marker(const marker &x) 
 			: thumbnail(x),
 			  type_(x.type_) {
 			connect_clicked(G_CALLBACK(marker_select_current), this);
 		}
+
 		marker &operator=(const marker &x) {
 			thumbnail::operator=(x);
 			type_ = x.type_;

@@ -5,6 +5,7 @@
 #include "frame_markers.h"
 #include "frame_sequence.h"
 #include "toolbar.h"
+#include <string>
 
 class main_screen {
 public:
@@ -22,12 +23,16 @@ public:
 
 	void add_start_marker();
 	void add_stop_marker();
+
+	void save_movie();
 private:
 	void create_widgets();
 
 	GtkWidget *vbox_;
 	GtkWidget *hbox_;
 	GtkWidget *full_image_;
+
+	std::string input_file_;
 
 	frame_markers markers_;
 	frame_sequence sequence_;
