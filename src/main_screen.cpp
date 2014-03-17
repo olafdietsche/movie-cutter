@@ -42,3 +42,15 @@ void main_screen::leave_fullscreen()
 	sequence_.show();
 	gtk_widget_hide(full_image_);
 }
+
+void main_screen::add_start_marker()
+{
+	frame_sequence::video_frame *frame = sequence_.get_current_video_frame();
+	markers_.add_start_marker(frame);
+}
+
+void main_screen::add_stop_marker()
+{
+	frame_sequence::video_frame *frame = sequence_.get_current_video_frame();
+	markers_.add_stop_marker(frame);
+}

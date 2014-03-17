@@ -39,22 +39,20 @@ void main_leave_fullscreen(GtkWidget*, main_screen *main)
 	main->leave_fullscreen();
 }
 
+void marker_add_start(GtkWidget*, main_screen *main)
+{
+	main->add_start_marker();
+}
+
+void marker_add_stop(GtkWidget*, main_screen *main)
+{
+	main->add_stop_marker();
+}
+
 void marker_delete(GtkWidget*, frame_markers *markers)
 {
 	markers->remove_current_marker();
 }
-}
-
-void marker_add_start(GtkWidget*, toolbar *bar)
-{
-	frame_sequence::video_frame *frame = bar->sequence_->get_current_video_frame();
-	bar->markers_->add_start_marker(frame);
-}
-
-void marker_add_stop(GtkWidget*, toolbar *bar)
-{
-	frame_sequence::video_frame *frame = bar->sequence_->get_current_video_frame();
-	bar->markers_->add_stop_marker(frame);
 }
 
 toolbar::toolbar(main_screen *main, frame_markers *markers, frame_sequence *sequence)
@@ -72,10 +70,10 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
-	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_start), this);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_start), main);
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
-	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_stop), this);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_stop), main);
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_DELETE);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_delete), markers);

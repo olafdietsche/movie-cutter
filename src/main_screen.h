@@ -19,6 +19,9 @@ public:
 
 	void fullscreen();
 	void leave_fullscreen();
+
+	void add_start_marker();
+	void add_stop_marker();
 private:
 	void create_widgets();
 

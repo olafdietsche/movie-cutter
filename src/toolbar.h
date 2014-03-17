@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 #ifndef __toolbar_h_included__
 #define __toolbar_h_included__
 
