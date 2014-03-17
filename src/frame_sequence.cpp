@@ -100,6 +100,7 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 					AVFrame *frame = dmux_->get_current_frame();
 					AVFrame *dest = conv.convert_frame(frame);
 					i->set_from_avframe(dest);
+					i->set_label(video_stream);
 					++i;
 					n_frames_ = std::distance(frames_.begin(), i);
 					start += step;
@@ -197,7 +198,8 @@ void frame_sequence::goto_frame(video_frame *frame)
 
 void frame_sequence::sequence_goto_frame(GtkWidget *btn, video_frame *frame)
 {
-	GtkWidget *parent = gtk_widget_get_parent(btn);
+	GtkWidget *box = gtk_widget_get_parent(btn);
+	GtkWidget *parent = gtk_widget_get_parent(box);
 	gpointer data = g_object_get_data(G_OBJECT(parent), "x-app-object");
 	frame_sequence *sequence = reinterpret_cast<frame_sequence*>(data);
 	sequence->goto_frame(frame);

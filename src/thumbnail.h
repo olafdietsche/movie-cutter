@@ -7,6 +7,7 @@ extern "C" {
 }
 
 #include <gtk/gtk.h>
+#include <string>
 
 class thumbnail {
 public:
@@ -18,25 +19,29 @@ public:
 	 * thumbnail &operator=(const thumbnail&); */
 
 	void attach(GtkWidget *table, int row, int column) {
-		gtk_table_attach_defaults(GTK_TABLE(table), btn_, column, column + 1, row, row + 1);
+		gtk_table_attach_defaults(GTK_TABLE(table), box_, column, column + 1, row, row + 1);
 	}
 
 	void pack(GtkWidget *box) {
-		gtk_box_pack_start(GTK_BOX(box), btn_, false, false, 0);
+		gtk_box_pack_start(GTK_BOX(box), box_, false, false, 0);
 	}
 
 	void pack(GtkWidget *box, int pos) {
-		gtk_box_reorder_child(GTK_BOX(box), btn_, pos);
+		gtk_box_reorder_child(GTK_BOX(box), box_, pos);
 	}
 
 	int64_t get_pts() const { return pts_; }
 
 	void clear();
 	void set_from_avframe(AVFrame *frame);
+	void set_label(const std::string &s);
+	void set_label(AVStream *st);
 	void set_from_thumbnail(const thumbnail &frame);
 	void connect_clicked(GCallback callback, gpointer user_data);
 private:
-	GtkWidget *btn_, *img_;
+	GtkWidget *box_;
+	GtkWidget *btn_, *img_, *lbl_;
+	std::string label_;
 	gulong handler_id_;
 
 	int64_t pts_;
