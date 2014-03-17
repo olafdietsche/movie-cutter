@@ -1,4 +1,6 @@
 #include "toolbar.h"
+#include "frame_sequence.h"
+#include "main_screen.h"
 
 namespace {
 void sequence_backward(GtkWidget*, frame_sequence *sequence)
@@ -20,15 +22,26 @@ void sequence_zoomout(GtkWidget*, frame_sequence *sequence)
 {
 	sequence->zoom_out();
 }
-}
 
-toolbar::toolbar(frame_sequence *sequence)
-	: sequence_(sequence)
+void main_fullscreen(GtkWidget*, main_screen *main)
 {
-	create_toolbar(sequence);
+	main->fullscreen();
 }
 
-void toolbar::create_toolbar(frame_sequence *sequence)
+void main_leave_fullscreen(GtkWidget*, main_screen *main)
+{
+	main->leave_fullscreen();
+}
+}
+
+toolbar::toolbar(main_screen *main, frame_sequence *sequence)
+	: main_(main),
+	  sequence_(sequence)
+{
+	create_toolbar(main, sequence);
+}
+
+void toolbar::create_toolbar(main_screen *main, frame_sequence *sequence)
 {
 	toolbar_ = gtk_toolbar_new();
 	GtkToolItem *toolitem, *separator;
@@ -65,4 +78,11 @@ void toolbar::create_toolbar(frame_sequence *sequence)
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_OUT);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_zoomout), sequence);
+
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_FULLSCREEN);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(main_fullscreen), main);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_LEAVE_FULLSCREEN);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(main_leave_fullscreen), main);
 }

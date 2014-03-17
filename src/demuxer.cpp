@@ -1,8 +1,12 @@
 #include "demuxer.h"
 extern "C" {
 #include "libavformat/avformat.h"
+#include "libavutil/mathematics.h"
 #include "libswscale/swscale.h"
 }
+
+#include <iomanip>
+#include <sstream>
 
 static const char *str_error(int err)
 {
@@ -26,6 +30,18 @@ demuxer::~demuxer()
 	av_frame_free(&frame_);
 }
 
+int64_t demuxer::normalize_timestamp(AVStream *st, int64_t ts)
+{
+	if (ts == AV_NOPTS_VALUE)
+		return ts;
+
+	if (ts < 0)
+		av_log(st->codec, AV_LOG_WARNING, "normalize_timestamp_timestamp: timestamp=%ld < 0\n", ts);
+
+	ts -= start_timestamp(st);
+	return av_rescale_q(ts, st->time_base, AV_TIME_BASE_Q);
+}
+
 int64_t demuxer::start_timestamp(AVStream *st)
 {
 	return st->start_time == AV_NOPTS_VALUE ? 0 : st->start_time;
@@ -33,10 +49,35 @@ int64_t demuxer::start_timestamp(AVStream *st)
 
 int64_t demuxer::rescale_timestamp(AVStream *st, int64_t ts)
 {
+	if (ts == AV_NOPTS_VALUE)
+		return ts;
+
 	if (ts < 0)
 		av_log(st->codec, AV_LOG_WARNING, "rescale_timestamp: timestamp=%ld < 0\n", ts);
 
 	return av_rescale_q(ts, AV_TIME_BASE_Q, st->time_base) + start_timestamp(st);
+}
+
+std::string demuxer::format_timestamp(int64_t ts)
+{
+	int seconds = ts / AV_TIME_BASE;
+	int minutes = seconds / 60;
+	seconds %= 60;
+	int hours = minutes / 60;
+	minutes %= 60;
+	ts %= AV_TIME_BASE;
+
+	std::ostringstream s;
+	s << hours << ':' << std::setfill('0') << std::setw(2) << minutes
+	  << ':' << std::setw(2) << seconds
+	  << '.' << std::setw(3) << ts * 1000 / AV_TIME_BASE;
+
+	return s.str();
+}
+
+int64_t demuxer::ticks_per_frame(AVStream *st)
+{
+	return (int64_t) st->time_base.den * st->r_frame_rate.den / st->time_base.num / st->r_frame_rate.num;
 }
 
 int demuxer::open(const char *filename)

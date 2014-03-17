@@ -34,9 +34,7 @@ AVFrame *converter::convert_frame(AVFrame *src)
 {
 	sws_scale(sws_ctx_, src->data, src->linesize, 0, src->height,
 		  dest_->data, dest_->linesize);
-	dest_->pts = src->pts;
-	dest_->pkt_pts = src->pkt_pts;
-	dest_->display_picture_number = src->display_picture_number;
+	av_frame_copy_props(dest_, src);
 	return dest_;
 }
 

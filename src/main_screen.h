@@ -15,11 +15,15 @@ public:
 
 	void show() { gtk_widget_show(vbox_); }
 	void update(demuxer &dmux);
+
+	void fullscreen();
+	void leave_fullscreen();
 private:
 	void create_widgets();
 
 	GtkWidget *vbox_;
 	GtkWidget *hbox_;
+	GtkWidget *full_image_;
 
 	frame_markers markers_;
 	frame_sequence sequence_;

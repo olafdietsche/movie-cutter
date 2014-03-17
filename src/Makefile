@@ -45,7 +45,7 @@ $(CMD_TARGET): $(CMD_OBJS) $(FFMPEG_OBJS)
 depend deps: .depends
 
 .depends:
-	$(CXX) -MM $(OBJS:.o=.cpp) >$@
+	$(CXX) -MM $(CXXFLAGS) $(OBJS:.o=.cpp) >$@
 
 clean:
 	$(RM) $(TARGETS) $(OBJS) .depends
