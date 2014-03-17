@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 #ifndef __demuxer_h_included__
 #define __demuxer_h_included__
 
@@ -11,7 +12,7 @@ extern "C" {
 
 class demuxer {
 public:
-	demuxer(const char *filename);
+	demuxer();
 	~demuxer();
 
 	AVFormatContext *get_format_context() { return fmt_ctx_; }
@@ -30,7 +31,7 @@ public:
 	static std::string format_timestamp(int64_t ts);
 	static int64_t ticks_per_frame(AVStream *st);
 
-	int open(const char *filename);
+	int open_input(const char *filename);
 	void close();
 
 	int read_next_packet(AVPacket *pkt);
@@ -48,7 +49,6 @@ public:
 	void frame_loop(Decoder d);
 
 private:
-	demuxer();
 	demuxer(const demuxer &);
 	demuxer &operator=(const demuxer &);
 

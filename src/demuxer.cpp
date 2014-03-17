@@ -2,7 +2,6 @@
 extern "C" {
 #include "libavformat/avformat.h"
 #include "libavutil/mathematics.h"
-#include "libswscale/swscale.h"
 }
 
 #include <iomanip>
@@ -17,11 +16,10 @@ static const char *str_error(int err)
 	return strerror(AVUNERROR(err));
 }
 
-demuxer::demuxer(const char *filename)
+demuxer::demuxer()
 	: fmt_ctx_(0),
 	  frame_(av_frame_alloc())
 {
-	open(filename);
 }
 
 demuxer::~demuxer()
@@ -80,7 +78,7 @@ int64_t demuxer::ticks_per_frame(AVStream *st)
 	return (int64_t) st->time_base.den * st->r_frame_rate.den / st->time_base.num / st->r_frame_rate.num;
 }
 
-int demuxer::open(const char *filename)
+int demuxer::open_input(const char *filename)
 {
 	int err;
 
@@ -123,8 +121,10 @@ int demuxer::open(const char *filename)
 
 void demuxer::close()
 {
-	// close container
-	avformat_close_input(&fmt_ctx_);
+	if (fmt_ctx_) {
+		// close container
+		avformat_close_input(&fmt_ctx_);
+	}
 }
 
 int demuxer::seek(int stream_index, int64_t pts)
@@ -176,6 +176,7 @@ bool demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
 		return false;
 	}
 
+	// advance pointer by consumed size
 	if (pkt->data) {
 		pkt->data += size;
 		pkt->size -= size;

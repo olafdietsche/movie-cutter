@@ -1,6 +1,5 @@
 extern "C" {
 #include "libavformat/avformat.h"
-#include "libswscale/swscale.h"
 }
 
 #include "converter.h"
@@ -69,7 +68,8 @@ int main(int argc, char **argv)
 	avformat_network_init();
 
 	const char *filename = argv[1];
-	demuxer dmux(filename);
+	demuxer dmux;
+	dmux.open_input(filename);
 	frame_loop(dmux);
 	return 0;
 }

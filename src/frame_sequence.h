@@ -6,14 +6,13 @@ extern "C" {
 #include "libavformat/avformat.h"
 }
 
+#include "demuxer.h"
 #include "thumbnail.h"
 #include <gtk/gtk.h>
 #include <deque>
 #include <stack>
 #include <tuple>
 #include <vector>
-
-class demuxer;
 
 class frame_sequence {
 public:
@@ -26,7 +25,7 @@ public:
 	void show() { gtk_widget_show(container_); }
 	void hide() { gtk_widget_hide(container_); }
 
-	void update_sequence(demuxer &dmux);
+	void update_sequence(const char *filenam);
 
 	void page_backward();
 	void page_forward();
@@ -67,7 +66,7 @@ private:
 	video_frame *current_frame_;
 	std::stack<std::tuple<int64_t, int64_t> > zoom_ins_;
 
-	demuxer *dmux_;
+	demuxer dmux_;
 	int video_stream_index_;
 	int64_t current_0_, current_step_;
 	int64_t minimum_step_;

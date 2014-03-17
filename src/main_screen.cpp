@@ -24,9 +24,9 @@ main_screen::main_screen()
 	bar_.show();
 }
 
-void main_screen::update(demuxer &dmux)
+void main_screen::update(const char *filename)
 {
-	sequence_.update_sequence(dmux);
+	sequence_.update_sequence(filename);
 }
 
 void main_screen::fullscreen()

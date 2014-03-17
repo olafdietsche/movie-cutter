@@ -24,8 +24,7 @@ int main(int argc, char **argv)
 	avformat_network_init();
 
 	const char *filename = argv[1];
-	demuxer dmux(filename);
-	main.update(dmux);
+	main.update(filename);
 
 	gtk_main();
 	return 0;

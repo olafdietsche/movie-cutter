@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 #ifndef __main_screen_h_included__
 #define __main_screen_h_included__
 
@@ -14,7 +15,7 @@ public:
 	}
 
 	void show() { gtk_widget_show(vbox_); }
-	void update(demuxer &dmux);
+	void update(const char *filename);
 
 	void fullscreen();
 	void leave_fullscreen();
