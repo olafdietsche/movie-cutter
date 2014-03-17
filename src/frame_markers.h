@@ -19,17 +19,26 @@ public:
 	void add_stop_marker(const thumbnail *marker);
 private:
 	struct marker : public thumbnail {
-		marker(GtkWidget *container)
-			: thumbnail() {
+		enum marker_type { start, stop };
+
+		marker(GtkWidget *container, marker_type type)
+			: thumbnail(),
+			  type_(type) {
 			pack(container);
 		}
 		marker(const marker &x) 
-			: thumbnail(x) {
+			: thumbnail(x),
+			  type_(x.type_) {
 		}
 		marker &operator=(const marker &x) {
 			thumbnail::operator=(x);
+			type_ = x.type_;
 			return *this;
 		}
+
+		void prefix_label();
+
+		marker_type type_;
 	};
 
 	void insert_marker(const marker &m);

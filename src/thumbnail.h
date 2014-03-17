@@ -33,6 +33,7 @@ public:
 	int64_t get_pts() const { return pts_; }
 
 	void clear();
+	const std::string &get_label() const { return label_; }
 	void set_from_avframe(AVFrame *frame);
 	void set_label(const std::string &s);
 	void set_label(AVStream *st);

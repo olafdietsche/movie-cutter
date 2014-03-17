@@ -1,6 +1,21 @@
 #include "frame_markers.h"
 #include <iostream>
 
+void frame_markers::marker::prefix_label()
+{
+	const char *prefix = "";
+	switch (type_) {
+	case start:
+		prefix = "Start - ";
+		break;
+	case stop:
+		prefix = "Stop - ";
+		break;
+	}
+
+	thumbnail::set_label(prefix + get_label());
+}
+
 frame_markers::frame_markers()
 	: container_(gtk_vbox_new(false, 0))
 {
@@ -8,15 +23,17 @@ frame_markers::frame_markers()
 
 void frame_markers::add_start_marker(const thumbnail *t)
 {
-	marker m(container_);
+	marker m(container_, marker::start);
 	m.set_from_thumbnail(*t);
+	m.prefix_label();
 	insert_marker(m);
 }
 
 void frame_markers::add_stop_marker(const thumbnail *t)
 {
-	marker m(container_);
+	marker m(container_, marker::stop);
 	m.set_from_thumbnail(*t);
+	m.prefix_label();
 	insert_marker(m);
 }
 
