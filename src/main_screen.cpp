@@ -26,12 +26,6 @@ main_screen::main_screen()
 	bar_.show();
 }
 
-void main_screen::update(const char *filename)
-{
-	input_file_ = filename;
-	sequence_.update_sequence(input_file_.c_str());
-}
-
 void main_screen::fullscreen()
 {
 	GdkPixbuf *buf = sequence_.get_current_pixbuf();
@@ -56,6 +50,30 @@ void main_screen::add_stop_marker()
 {
 	frame_sequence::video_frame *frame = sequence_.get_current_video_frame();
 	markers_.add_stop_marker(frame);
+}
+
+void main_screen::open_movie()
+{
+	GtkWidget *toplevel = gtk_widget_get_toplevel(vbox_);
+	GtkWidget *dlg = gtk_file_chooser_dialog_new("Load File",
+						     GTK_WINDOW(toplevel),
+						     GTK_FILE_CHOOSER_ACTION_OPEN,
+						     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+						     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+						     NULL);
+	if (gtk_dialog_run(GTK_DIALOG(dlg)) != GTK_RESPONSE_ACCEPT)
+		return;
+
+	char *input_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+	open_movie(input_file);
+	g_free(input_file);
+	gtk_widget_destroy(dlg);
+}
+
+void main_screen::open_movie(const char *filename)
+{
+	input_file_ = filename;
+	sequence_.update_sequence(input_file_.c_str());
 }
 
 void main_screen::save_movie()

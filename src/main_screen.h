@@ -16,7 +16,6 @@ public:
 	}
 
 	void show() { gtk_widget_show(vbox_); }
-	void update(const char *filename);
 
 	void fullscreen();
 	void leave_fullscreen();
@@ -24,6 +23,8 @@ public:
 	void add_start_marker();
 	void add_stop_marker();
 
+	void open_movie();
+	void open_movie(const char *filename);
 	void save_movie();
 private:
 	void create_widgets();

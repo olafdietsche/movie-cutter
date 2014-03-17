@@ -54,6 +54,11 @@ void marker_delete(GtkWidget*, frame_markers *markers)
 	markers->remove_current_marker();
 }
 
+void open_movie(GtkWidget*, main_screen *main)
+{
+	main->open_movie();
+}
+
 void save_movie(GtkWidget*, main_screen *main)
 {
 	main->save_movie();
@@ -73,6 +78,9 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 	toolbar_ = gtk_toolbar_new();
 	GtkToolItem *toolitem, *separator;
 
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_OPEN);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(open_movie), main);
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(save_movie), main);

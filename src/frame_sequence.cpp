@@ -62,6 +62,7 @@ void frame_sequence::create_sequence(int rows, int columns)
 
 void frame_sequence::update_sequence(const char *filename)
 {
+	dmux_.close();
 	dmux_.open_input(filename);
 	video_stream_index_ = dmux_.get_stream_index(AVMEDIA_TYPE_VIDEO);
 	AVStream *video_stream = dmux_.get_stream(video_stream_index_);

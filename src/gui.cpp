@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	avformat_network_init();
 
 	const char *filename = argv[1];
-	main.update(filename);
+	main.open_movie(filename);
 
 	gtk_main();
 	return 0;
