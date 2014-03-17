@@ -23,8 +23,10 @@ int main(int argc, char **argv)
 	av_register_all();
 	avformat_network_init();
 
-	const char *filename = argv[1];
-	main.open_movie(filename);
+	if (argc > 1) {
+		const char *filename = argv[1];
+		main.open_movie(filename);
+	}
 
 	gtk_main();
 	return 0;
