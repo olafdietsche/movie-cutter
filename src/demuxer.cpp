@@ -130,10 +130,14 @@ void demuxer::close()
 int demuxer::seek(int stream_index, int64_t pts)
 {
 	AVStream *st = get_stream(stream_index);
-	avcodec_flush_buffers(st->codec);
-	int err = avformat_seek_file(fmt_ctx_, stream_index, 0, pts, pts, 0);
+	AVCodecContext *codec = st->codec;
+	av_log(codec, AV_LOG_DEBUG, "demuxer::seek(%d, %ld)\n", stream_index, pts);
+	avcodec_flush_buffers(codec);
+	pts -= codec->gop_size * demuxer::ticks_per_frame(st);
+	int err = avformat_seek_file(fmt_ctx_, stream_index, INT64_MIN, pts, pts, 0);
 	if (err < 0)
 		av_log(fmt_ctx_, AV_LOG_ERROR, "avformat_seek_file: err=%s\n", str_error(err));
+
 	return err;
 }
 
