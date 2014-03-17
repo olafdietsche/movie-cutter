@@ -35,7 +35,8 @@ public:
 
 	struct video_frame : public thumbnail {
 		video_frame(GtkWidget *container, int row, int column)
-			: thumbnail(container, row, column) {
+			: thumbnail() {
+			attach(container, row, column);
 			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
 		}
 		video_frame(const video_frame &x) 
@@ -49,8 +50,8 @@ public:
 		}
 	};
 
-	GdkPixbuf *get_current_frame();
-
+	GdkPixbuf *get_current_pixbuf();
+	video_frame *get_current_video_frame() { return current_frame_; }
 private:
 	void create_sequence(int rows, int columns);
 	void clear_sequence();

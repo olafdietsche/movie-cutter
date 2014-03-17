@@ -14,7 +14,7 @@ GdkPixbuf *thumbnail::gdk_pixbuf_new_from_avframe(AVFrame *frame)
 	return buf;
 }
 
-thumbnail::thumbnail(GtkWidget *container, int row, int column)
+thumbnail::thumbnail()
 	: btn_(gtk_button_new()),
 	  img_(gtk_image_new()),
 	  handler_id_(0)
@@ -23,8 +23,6 @@ thumbnail::thumbnail(GtkWidget *container, int row, int column)
         gtk_container_set_border_width(GTK_CONTAINER(btn_), 0);
 	gtk_button_set_image(GTK_BUTTON(btn_), img_);
 	gtk_widget_show(img_);
-
-	gtk_table_attach_defaults(GTK_TABLE(container), btn_, column, column + 1, row, row + 1);
 	gtk_widget_show(btn_);
 }
 
@@ -51,6 +49,15 @@ void thumbnail::set_from_avframe(AVFrame *frame)
 	GdkPixbuf *buf = gdk_pixbuf_new_from_avframe(frame);
 	gtk_image_set_from_pixbuf(GTK_IMAGE(img_), buf);
 	gtk_widget_set_sensitive(btn_, true);
+}
+
+void thumbnail::set_from_thumbnail(const thumbnail &frame)
+{
+	pts_ = frame.pts_;
+	display_picture_number_ = frame.display_picture_number_;
+	coded_picture_number_ = frame.coded_picture_number_;
+	GdkPixbuf *buf = gtk_image_get_pixbuf(GTK_IMAGE(frame.img_));
+	gtk_image_set_from_pixbuf(GTK_IMAGE(img_), buf);
 }
 
 void thumbnail::connect_clicked(GCallback callback, gpointer user_data)

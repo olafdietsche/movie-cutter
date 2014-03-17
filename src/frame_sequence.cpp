@@ -119,7 +119,7 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 	goto_frame(&frames_[0]);
 }
 
-GdkPixbuf *frame_sequence::get_current_frame()
+GdkPixbuf *frame_sequence::get_current_pixbuf()
 {
 	AVPacket pkt;
 	av_init_packet(&pkt);

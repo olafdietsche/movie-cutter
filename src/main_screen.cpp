@@ -7,7 +7,7 @@ main_screen::main_screen()
 	  hbox_(gtk_hbox_new(false, 0)),
 	  full_image_(gtk_image_new()),
 	  sequence_(ROWS, COLUMNS),
-	  bar_(this, &sequence_)
+	  bar_(this, &markers_, &sequence_)
 {
 	markers_.pack(hbox_);
 	markers_.show();
@@ -31,7 +31,7 @@ void main_screen::update(demuxer &dmux)
 
 void main_screen::fullscreen()
 {
-	GdkPixbuf *buf = sequence_.get_current_frame();
+	GdkPixbuf *buf = sequence_.get_current_pixbuf();
 	gtk_image_set_from_pixbuf(GTK_IMAGE(full_image_), buf);
 	gtk_widget_show(full_image_);
 	sequence_.hide();
