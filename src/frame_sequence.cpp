@@ -60,17 +60,21 @@ void frame_sequence::create_sequence(int rows, int columns)
 	}
 }
 
-void frame_sequence::update_sequence(const char *filename)
+int frame_sequence::update_sequence(const char *filename)
 {
 	dmux_.close();
-	dmux_.open_input(filename);
-	video_stream_index_ = dmux_.get_stream_index(AVMEDIA_TYPE_VIDEO);
-	AVStream *video_stream = dmux_.get_stream(video_stream_index_);
-	current_0_ = demuxer::rescale_timestamp(video_stream, START_PTS);
-	int64_t stream_step = demuxer::rescale_timestamp(video_stream, START_PTS + STEP_PTS);
-	stream_step -= current_0_;
-	minimum_step_ = demuxer::ticks_per_frame(video_stream);
-	update_sequence(current_0_, stream_step);
+	int err = dmux_.open_input(filename);
+	if (err >= 0) {
+		video_stream_index_ = dmux_.get_stream_index(AVMEDIA_TYPE_VIDEO);
+		AVStream *video_stream = dmux_.get_stream(video_stream_index_);
+		current_0_ = demuxer::rescale_timestamp(video_stream, START_PTS);
+		int64_t stream_step = demuxer::rescale_timestamp(video_stream, START_PTS + STEP_PTS);
+		stream_step -= current_0_;
+		minimum_step_ = demuxer::ticks_per_frame(video_stream);
+		update_sequence(current_0_, stream_step);
+	}
+
+	return err;
 }
 
 void frame_sequence::update_sequence(int64_t start, int64_t step)

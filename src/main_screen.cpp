@@ -73,7 +73,19 @@ void main_screen::open_movie()
 void main_screen::open_movie(const char *filename)
 {
 	input_file_ = filename;
-	sequence_.update_sequence(input_file_.c_str());
+	int err = sequence_.update_sequence(input_file_.c_str());
+	if (err < 0) {
+		GtkWidget *toplevel = gtk_widget_get_toplevel(vbox_);
+		GtkWidget *dlg = gtk_message_dialog_new(GTK_WINDOW(toplevel),
+							GTK_DIALOG_DESTROY_WITH_PARENT,
+							GTK_MESSAGE_ERROR,
+							GTK_BUTTONS_CLOSE,
+							"Error loading %s: %s",
+							input_file_.c_str(),
+							av_err2str(err));
+		gtk_dialog_run(GTK_DIALOG(dlg));
+	 	gtk_widget_destroy(dlg);
+	}
 }
 
 void main_screen::save_movie()

@@ -25,7 +25,7 @@ public:
 	void show() { gtk_widget_show(container_); }
 	void hide() { gtk_widget_hide(container_); }
 
-	void update_sequence(const char *filename);
+	int update_sequence(const char *filename);
 
 	void page_backward();
 	void page_forward();

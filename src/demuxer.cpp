@@ -76,14 +76,14 @@ int demuxer::open_input(const char *filename)
 	// open container
 	err = avformat_open_input(&fmt_ctx_, filename, NULL, NULL);
 	if (err < 0) {
-		av_log(NULL, AV_LOG_ERROR, "%s\n", av_err2str(err));
+		av_log(NULL, AV_LOG_ERROR, "%s: %s\n", filename, av_err2str(err));
 		return err;
 	}
 
 	// look for container and stream types
 	err = avformat_find_stream_info(fmt_ctx_, NULL);
 	if (err < 0) {
-		av_log(fmt_ctx_, AV_LOG_ERROR, "%s\n", av_err2str(err));
+		av_log(fmt_ctx_, AV_LOG_ERROR, "%s: %s\n", filename, av_err2str(err));
 		return err;
 	}
 
@@ -93,15 +93,15 @@ int demuxer::open_input(const char *filename)
 		AVCodecContext *dec_ctx = st->codec;
 		AVCodec *dec = avcodec_find_decoder(dec_ctx->codec_id);
 		if (!dec) {
-			av_log(dec_ctx, AV_LOG_ERROR, "Failed to find %s codec\n",
-			       av_get_media_type_string(dec_ctx->codec_type));
-			return -1;
+			av_log(dec_ctx, AV_LOG_ERROR, "%s: failed to find %s codec\n",
+			       filename, av_get_media_type_string(dec_ctx->codec_type));
+			return AVERROR_DECODER_NOT_FOUND;
 		}
 
 		err = avcodec_open2(dec_ctx, dec, NULL);
 		if (err < 0) {
-			av_log(dec_ctx, AV_LOG_ERROR, "Failed to open %s codec; %s\n",
-			       av_get_media_type_string(dec_ctx->codec_type),
+			av_log(dec_ctx, AV_LOG_ERROR, "%s: failed to open %s codec; %s\n",
+			       filename, av_get_media_type_string(dec_ctx->codec_type),
 			       av_err2str(err));
 			return err;
 		}
