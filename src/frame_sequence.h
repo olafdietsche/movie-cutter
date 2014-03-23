@@ -27,8 +27,10 @@ public:
 
 	int update_sequence(const char *filename);
 
+	void goto_first_frame();
 	void page_backward();
 	void page_forward();
+	void goto_last_frame();
 	void zoom_in();
 	void zoom_out();
 	void zoom_home();

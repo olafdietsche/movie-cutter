@@ -4,6 +4,11 @@
 #include "main_screen.h"
 
 namespace {
+void sequence_goto_first(GtkWidget*, frame_sequence *sequence)
+{
+	sequence->goto_first_frame();
+}
+
 void sequence_backward(GtkWidget*, frame_sequence *sequence)
 {
 	sequence->page_backward();
@@ -12,6 +17,11 @@ void sequence_backward(GtkWidget*, frame_sequence *sequence)
 void sequence_forward(GtkWidget*, frame_sequence *sequence)
 {
 	sequence->page_forward();
+}
+
+void sequence_goto_last(GtkWidget*, frame_sequence *sequence)
+{
+	sequence->goto_last_frame();
 }
 
 void sequence_zoomin(GtkWidget*, frame_sequence *sequence)
@@ -103,6 +113,7 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_PREVIOUS);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_goto_first), sequence);
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_REWIND);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_backward), sequence);
@@ -111,6 +122,7 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_forward), sequence);
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_NEXT);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(sequence_goto_last), sequence);
 
 	separator = gtk_separator_tool_item_new();
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), separator, -1);

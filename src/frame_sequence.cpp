@@ -158,6 +158,14 @@ GdkPixbuf *frame_sequence::get_current_pixbuf()
 	return NULL;
 }
 
+void frame_sequence::goto_first_frame()
+{
+	if (n_frames_) {
+		clear_sequence();
+		update_sequence(INT64_MIN, current_step_);
+	}
+}
+
 void frame_sequence::page_backward()
 {
 	if (n_frames_) {
@@ -173,6 +181,23 @@ void frame_sequence::page_forward()
 		int64_t start = frames_[n_frames_ - 1].get_pts();
 		clear_sequence();
 		update_sequence(start, current_step_);
+	}
+}
+
+void frame_sequence::goto_last_frame()
+{
+	if (n_frames_) {
+		AVPacket pkt;
+		av_init_packet(&pkt);
+		pkt.data = NULL;
+		pkt.size = 0;
+
+		dmux_.seek(video_stream_index_, INT64_MAX);
+		dmux_.read_next_packet(&pkt, video_stream_index_);
+		int64_t last_pts = pkt.pts;
+
+		clear_sequence();
+		update_sequence(last_pts - current_step_ * frames_.size(), current_step_);
 	}
 }
 
