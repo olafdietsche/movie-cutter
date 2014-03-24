@@ -102,12 +102,17 @@ void main_screen::save_movie()
 		return;
 
 	char *output_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+	save_movie(output_file);
+	g_free(output_file);
+	gtk_widget_destroy(dlg);
+}
+
+void main_screen::save_movie(const char *output_file)
+{
 	demuxer dmux;
 	dmux.open_input(input_file_.c_str());
 	muxer mux;
 	mux.open_output(output_file, dmux.get_format_context());
-	g_free(output_file);
-	gtk_widget_destroy(dlg);
 
 	frame_markers::marker_sequence m = markers_.get_markers();
 	auto i = m.cbegin();

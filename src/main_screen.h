@@ -26,6 +26,7 @@ public:
 	void open_movie();
 	void open_movie(const char *filename);
 	void save_movie();
+	void save_movie(const char *output_file);
 private:
 	void create_widgets();
 
