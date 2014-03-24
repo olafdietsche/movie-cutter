@@ -50,6 +50,7 @@ private:
 	gulong handler_id_;
 
 	int64_t pts_;
+	AVPictureType pict_type_;
 	int display_picture_number_, coded_picture_number_;
 };
 

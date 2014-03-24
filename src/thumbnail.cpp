@@ -1,5 +1,6 @@
 #include "thumbnail.h"
 #include "demuxer.h"
+#include <sstream>
 
 GdkPixbuf *thumbnail::gdk_pixbuf_new_from_avframe(AVFrame *frame)
 {
@@ -44,6 +45,7 @@ void thumbnail::clear()
 	set_label("");
 
 	pts_ = AV_NOPTS_VALUE;
+	pict_type_ = AV_PICTURE_TYPE_NONE;
 	display_picture_number_ = coded_picture_number_ = -1;
 }
 
@@ -53,6 +55,7 @@ void thumbnail::set_from_avframe(AVFrame *frame)
 	if (pts_ == AV_NOPTS_VALUE)
 		pts_ = frame->pkt_pts;
 
+	pict_type_ = frame->pict_type;
 	display_picture_number_ = frame->display_picture_number;
 	coded_picture_number_ = frame->coded_picture_number;
 	GdkPixbuf *buf = gdk_pixbuf_new_from_avframe(frame);
@@ -87,5 +90,7 @@ void thumbnail::set_label(const std::string &s)
 void thumbnail::set_label(AVStream *st)
 {
 	int64_t ts = demuxer::normalize_timestamp(st, pts_);
-	set_label(demuxer::format_timestamp(ts));
+	std::ostringstream s;
+	s << '(' << av_get_picture_type_char(pict_type_) << ") " << demuxer::format_timestamp(ts);
+	set_label(s.str());
 }
