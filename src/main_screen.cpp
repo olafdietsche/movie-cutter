@@ -61,12 +61,12 @@ void main_screen::open_movie()
 						     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 						     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 						     NULL);
-	if (gtk_dialog_run(GTK_DIALOG(dlg)) != GTK_RESPONSE_ACCEPT)
-		return;
+	if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+		char *input_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+		open_movie(input_file);
+		g_free(input_file);
+	}
 
-	char *input_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-	open_movie(input_file);
-	g_free(input_file);
 	gtk_widget_destroy(dlg);
 }
 
@@ -98,12 +98,12 @@ void main_screen::save_movie()
 						     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 						     NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dlg), TRUE);
-	if (gtk_dialog_run(GTK_DIALOG(dlg)) != GTK_RESPONSE_ACCEPT)
-		return;
+	if (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT) {
+		char *output_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+		save_movie(output_file);
+		g_free(output_file);
+	}
 
-	char *output_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-	save_movie(output_file);
-	g_free(output_file);
 	gtk_widget_destroy(dlg);
 }
 
