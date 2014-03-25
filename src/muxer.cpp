@@ -4,14 +4,16 @@
 #include <vector>
 
 namespace {
-AVOutputFormat *find_output_format(const AVInputFormat *iformat)
+AVOutputFormat *find_output_format(const char *filename, const AVInputFormat *iformat)
 {
 	std::unique_ptr<char, void(*)(void*)> names(strdup(iformat->name), &free);
 	std::vector<AVOutputFormat*> output_formats;
 	char *name = strtok(names.get(), ",");
 	while (name) {
-		if (AVOutputFormat *fmt = av_guess_format(name, NULL, NULL))
-			output_formats.push_back(fmt);
+		if (AVOutputFormat *fmt = av_guess_format(name, NULL, NULL)) {
+			if (av_match_ext(filename, fmt->extensions))
+				output_formats.push_back(fmt);
+		}
 
 		name = strtok(NULL, ",");
 	}
@@ -38,7 +40,7 @@ int muxer::open_output(const char *filename, const AVFormatContext *fmt_ctx_in)
 		return -1;
 	}
 
-	fmt_ctx_->oformat = find_output_format(fmt_ctx_in->iformat);
+	fmt_ctx_->oformat = find_output_format(filename, fmt_ctx_in->iformat);
 	if (!fmt_ctx_->oformat) {
 		avformat_free_context(fmt_ctx_);
 		return -1;
