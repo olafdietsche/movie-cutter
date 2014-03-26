@@ -76,9 +76,6 @@ void save_movie(GtkWidget*, main_screen *main)
 }
 
 toolbar::toolbar(main_screen *main, frame_markers *markers, frame_sequence *sequence)
-	: main_(main),
-	  markers_(markers),
-	  sequence_(sequence)
 {
 	create_toolbar(main, markers, sequence);
 }

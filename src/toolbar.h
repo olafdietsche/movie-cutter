@@ -18,14 +18,8 @@ public:
 
 	void show() { gtk_widget_show_all(toolbar_); }
 private:
-	friend void marker_add_start(GtkWidget*, toolbar *bar);
-	friend void marker_add_stop(GtkWidget*, toolbar *bar);
-
 	void create_toolbar(main_screen *main, frame_markers *markers, frame_sequence *sequence);
 
-	main_screen *main_;
-	frame_markers *markers_;
-	frame_sequence *sequence_;
 	GtkWidget *toolbar_;
 
 	toolbar(const toolbar &);

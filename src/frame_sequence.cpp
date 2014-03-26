@@ -10,27 +10,6 @@ extern "C" {
 
 namespace {
 int64_t START_PTS = 0 * AV_TIME_BASE, STEP_PTS = 60 * AV_TIME_BASE;
-
-std::string normalize_timestamp(AVStream *st, int64_t ts)
-{
-	ts = demuxer::normalize_timestamp(st, ts);
-	return demuxer::format_timestamp(ts);
-}
-
-#define a(n) ", " #n "=" << frame->n
-#define t(n) std::cerr << ", " #n "=" << normalize_timestamp(st, frame->n)
-
-void dump_avframe(AVStream *st, AVFrame *frame)
-{
-	std::cerr << "dump_avframe: key_frame=" << frame->key_frame;
-	t(pts); t(pkt_pts); t(pkt_dts);
-	std::cerr << a(coded_picture_number) << a(display_picture_number)
-		  << '\n';
-}
-
-#undef t
-#undef a
-
 }
 
 frame_sequence::frame_sequence(int rows, int columns)

@@ -41,22 +41,13 @@ public:
 	void flush(AVPacket *pkt);
 
 	int seek(int stream_index, int64_t pts);
-	int seek(AVMediaType codec_type, int64_t pts);
 	void flush_packet_queue();
-	void push_packet(AVPacket *pkt);
-	//AVFrame *get_next_frame();
-	typedef std::function<bool(AVStream*, AVPacket*)> Filter;
-	typedef std::function<bool(AVCodecContext*, AVFrame*)> Decoder;
-	void frame_loop(Decoder d);
-
 private:
 	demuxer(const demuxer &);
 	demuxer &operator=(const demuxer &);
 
 	AVFormatContext *fmt_ctx_;
 	AVFrame *frame_;
-
-	std::deque<AVPacket> pkt_q_;
 };
 
 #endif

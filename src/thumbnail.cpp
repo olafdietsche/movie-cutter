@@ -21,7 +21,11 @@ thumbnail::thumbnail()
 	  btn_(gtk_button_new()),
 	  img_(gtk_image_new()),
 	  lbl_(gtk_label_new("")),
-	  handler_id_(0)
+	  handler_id_(0),
+	  pts_(AV_NOPTS_VALUE),
+	  pict_type_(AV_PICTURE_TYPE_NONE),
+	  display_picture_number_(-1),
+	  coded_picture_number_(-1)
 {
 	gtk_button_set_relief(GTK_BUTTON(btn_), GTK_RELIEF_NONE);
 	gtk_container_set_border_width(GTK_CONTAINER(btn_), 0);
