@@ -22,6 +22,7 @@ public:
 
 	void add_start_marker();
 	void add_stop_marker();
+	void add_bookmark();
 
 	void open_movie();
 	void open_movie(const char *filename);

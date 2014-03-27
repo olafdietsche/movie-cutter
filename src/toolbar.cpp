@@ -59,6 +59,11 @@ void marker_add_stop(GtkWidget*, main_screen *main)
 	main->add_stop_marker();
 }
 
+void marker_add_bookmark(GtkWidget*, main_screen *main)
+{
+	main->add_bookmark();
+}
+
 void marker_delete(GtkWidget*, frame_markers *markers)
 {
 	markers->remove_current_marker();
@@ -101,7 +106,10 @@ void toolbar::create_toolbar(main_screen *main, frame_markers *markers, frame_se
 	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_stop), main);
-	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_DELETE);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_ADD);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
+	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_add_bookmark), main);
+	toolitem = gtk_tool_button_new_from_stock(GTK_STOCK_REMOVE);
 	gtk_toolbar_insert(GTK_TOOLBAR(toolbar_), toolitem, -1);
 	g_signal_connect(toolitem, "clicked", G_CALLBACK(marker_delete), markers);
 

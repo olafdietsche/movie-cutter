@@ -11,6 +11,9 @@ void frame_markers::marker::prefix_label()
 	case marker_stop:
 		prefix = "Stop - ";
 		break;
+	case marker_bookmark:
+		prefix = "Bookmark - ";
+		break;
 	}
 
 	thumbnail::set_label(prefix + get_label());
@@ -44,6 +47,14 @@ void frame_markers::add_stop_marker(const thumbnail *t)
 	insert_marker(m);
 }
 
+void frame_markers::add_bookmark(const thumbnail *t)
+{
+	marker m(container_, marker_bookmark);
+	m.set_from_thumbnail(*t);
+	m.prefix_label();
+	insert_marker(m);
+}
+
 void frame_markers::remove_current_marker()
 {
 	if (current_marker_) {
@@ -67,6 +78,9 @@ frame_markers::marker_sequence frame_markers::get_markers()
 			segment.stop_ = i->get_pts();
 			res.push_back(segment);
 			segment_done = true;
+			break;
+		case marker_bookmark:
+			// nothing todo here
 			break;
 		}
 	}

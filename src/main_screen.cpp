@@ -52,6 +52,12 @@ void main_screen::add_stop_marker()
 	markers_.add_stop_marker(frame);
 }
 
+void main_screen::add_bookmark()
+{
+	frame_sequence::video_frame *frame = sequence_.get_current_video_frame();
+	markers_.add_bookmark(frame);
+}
+
 void main_screen::open_movie()
 {
 	GtkWidget *toplevel = gtk_widget_get_toplevel(vbox_);
