@@ -1,15 +1,52 @@
 #include "frame_sequence.h"
 #include "demuxer.h"
 #include "converter.h"
+#include "keyboard_shortcuts.h"
 
 extern "C" {
 #include "libavformat/avformat.h"
 }
 
+#include <gdk/gdkkeysyms.h>
 #include <iostream>
 
 namespace {
 int64_t START_PTS = 0 * AV_TIME_BASE, STEP_PTS = 60 * AV_TIME_BASE;
+
+void sequence_zoomin(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->zoom_in();
+}
+
+void sequence_zoomout(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->zoom_out();
+}
+
+void sequence_zoom_home(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->zoom_home();
+}
+
+void sequence_page_backward(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->page_backward();
+}
+
+void sequence_page_forward(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->page_forward();
+}
+
+void sequence_goto_first(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->goto_first_frame();
+}
+
+void sequence_goto_last(GtkAccelGroup*, GObject*, guint, GdkModifierType, frame_sequence *sequence)
+{
+	sequence->goto_last_frame();
+}
 }
 
 frame_sequence::frame_sequence(int rows, int columns)
@@ -216,6 +253,17 @@ void frame_sequence::zoom_home()
 
 		update_sequence(first, step);
 	}
+}
+
+void frame_sequence::create_keyboard_shortcuts(GtkAccelGroup *accel_group)
+{
+	create_keyboard_shortcut(accel_group, '+', sequence_zoomin, this);
+	create_keyboard_shortcut(accel_group, '-', sequence_zoomout, this);
+	create_keyboard_shortcut(accel_group, '0', sequence_zoom_home, this);
+	create_keyboard_shortcut(accel_group, GDK_KEY_Page_Up, sequence_page_backward, this);
+	create_keyboard_shortcut(accel_group, GDK_KEY_Page_Down, sequence_page_forward, this);
+	create_keyboard_shortcut(accel_group, GDK_KEY_Home, GDK_CONTROL_MASK, sequence_goto_first, this);
+	create_keyboard_shortcut(accel_group, GDK_KEY_End, GDK_CONTROL_MASK, sequence_goto_last, this);
 }
 
 void frame_sequence::select_frame(video_frame *frame)

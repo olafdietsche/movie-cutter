@@ -24,6 +24,8 @@ public:
 	void add_stop_marker();
 	void add_bookmark();
 
+	void create_keyboard_shortcuts(GtkAccelGroup *accel_group);
+
 	void open_movie();
 	void open_movie(const char *filename);
 	void save_movie();

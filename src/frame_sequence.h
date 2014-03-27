@@ -35,6 +35,8 @@ public:
 	void zoom_out();
 	void zoom_home();
 
+	void create_keyboard_shortcuts(GtkAccelGroup *accel_group);
+
 	struct video_frame : public thumbnail {
 		video_frame(GtkWidget *container, int row, int column)
 			: thumbnail() {
