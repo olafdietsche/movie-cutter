@@ -41,7 +41,6 @@ public:
 	void flush(AVPacket *pkt);
 
 	int seek(int stream_index, int64_t pts);
-	void flush_packet_queue();
 private:
 	demuxer(const demuxer &);
 	demuxer &operator=(const demuxer &);

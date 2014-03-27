@@ -39,15 +39,15 @@ public:
 		video_frame(GtkWidget *container, int row, int column)
 			: thumbnail() {
 			attach(container, row, column);
-			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
+			connect_clicked(G_CALLBACK(sequence_select_frame), this);
 		}
 		video_frame(const video_frame &x) 
 			: thumbnail(x) {
-			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
+			connect_clicked(G_CALLBACK(sequence_select_frame), this);
 		}
 		video_frame &operator=(const video_frame &x) {
 			thumbnail::operator=(x);
-			connect_clicked(G_CALLBACK(sequence_goto_frame), this);
+			connect_clicked(G_CALLBACK(sequence_select_frame), this);
 			return *this;
 		}
 	};
@@ -59,8 +59,8 @@ private:
 	void clear_sequence();
 	void update_sequence(int64_t start, int64_t step);
 
-	void goto_frame(video_frame *frame);
-	static void sequence_goto_frame(GtkWidget*, video_frame *frame);
+	void select_frame(video_frame *frame);
+	static void sequence_select_frame(GtkWidget*, video_frame *frame);
 
 	GtkWidget *container_;
 	int n_frames_;

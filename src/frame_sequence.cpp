@@ -105,7 +105,7 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 
 	// flush cached frames
 	dmux_.flush(&pkt);
-	goto_frame(&frames_[0]);
+	select_frame(&frames_[0]);
 }
 
 GdkPixbuf *frame_sequence::get_current_pixbuf()
@@ -218,16 +218,25 @@ void frame_sequence::zoom_home()
 	}
 }
 
-void frame_sequence::goto_frame(video_frame *frame)
+void frame_sequence::select_frame(video_frame *frame)
 {
-	current_frame_ = frame;
+	if (current_frame_)
+		current_frame_->remove_mark();
+
+	if (frame == current_frame_) {
+		current_frame_ = 0;
+	} else {
+		current_frame_ = frame;
+		if (frame)
+			frame->mark_as_selected();
+	}
 }
 
-void frame_sequence::sequence_goto_frame(GtkWidget *btn, video_frame *frame)
+void frame_sequence::sequence_select_frame(GtkWidget *btn, video_frame *frame)
 {
 	GtkWidget *box = gtk_widget_get_parent(btn);
 	GtkWidget *parent = gtk_widget_get_parent(box);
 	gpointer data = g_object_get_data(G_OBJECT(parent), "x-app-object");
 	frame_sequence *sequence = reinterpret_cast<frame_sequence*>(data);
-	sequence->goto_frame(frame);
+	sequence->select_frame(frame);
 }

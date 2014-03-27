@@ -92,6 +92,7 @@ void frame_markers::adjust_scrolled_width()
 
 void frame_markers::insert_marker(const marker &m)
 {
+	select_marker(0);
 	for (auto i = markers_.begin(); i != markers_.end(); ++i) {
 		if (m.get_pts() < i->get_pts()) {
 			int pos = std::distance(markers_.begin(), i);
@@ -108,6 +109,7 @@ void frame_markers::remove_marker(const marker &m)
 {
 	for (auto i = markers_.begin(); i != markers_.end(); ++i) {
 		if (m.get_pts() == i->get_pts()) {
+			select_marker(0);
 			i->destroy();
 			markers_.erase(i);
 			return;
@@ -115,16 +117,25 @@ void frame_markers::remove_marker(const marker &m)
 	}
 }
 
-void frame_markers::select_current(marker *frame)
+void frame_markers::select_marker(marker *frame)
 {
-	current_marker_ = frame;
+	if (current_marker_)
+		current_marker_->remove_mark();
+
+	if (frame == current_marker_) {
+		current_marker_ = 0;
+	} else {
+		current_marker_ = frame;
+		if (frame)
+			frame->mark_as_selected();
+	}
 }
 
-void frame_markers::marker_select_current(GtkWidget *btn, marker *frame)
+void frame_markers::marker_select_marker(GtkWidget *btn, marker *frame)
 {
 	GtkWidget *box = gtk_widget_get_parent(btn);
 	GtkWidget *parent = gtk_widget_get_parent(box);
 	gpointer data = g_object_get_data(G_OBJECT(parent), "x-app-object");
 	frame_markers *markers = reinterpret_cast<frame_markers*>(data);
-	markers->select_current(frame);
+	markers->select_marker(frame);
 }

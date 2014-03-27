@@ -43,6 +43,8 @@ public:
 	void set_label(AVStream *st);
 	void set_from_thumbnail(const thumbnail &frame);
 	void connect_clicked(GCallback callback, gpointer user_data);
+	void mark_as_selected();
+	void remove_mark();
 private:
 	GtkWidget *box_;
 	GtkWidget *btn_, *img_, *lbl_;

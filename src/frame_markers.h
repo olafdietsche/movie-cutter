@@ -32,19 +32,19 @@ private:
 			: thumbnail(),
 			  type_(type) {
 			pack(container);
-			connect_clicked(G_CALLBACK(marker_select_current), this);
+			connect_clicked(G_CALLBACK(marker_select_marker), this);
 		}
 
 		marker(const marker &x) 
 			: thumbnail(x),
 			  type_(x.type_) {
-			connect_clicked(G_CALLBACK(marker_select_current), this);
+			connect_clicked(G_CALLBACK(marker_select_marker), this);
 		}
 
 		marker &operator=(const marker &x) {
 			thumbnail::operator=(x);
 			type_ = x.type_;
-			connect_clicked(G_CALLBACK(marker_select_current), this);
+			connect_clicked(G_CALLBACK(marker_select_marker), this);
 			return *this;
 		}
 
@@ -56,9 +56,9 @@ private:
 	void adjust_scrolled_width();
 	void insert_marker(const marker &m);
 	void remove_marker(const marker &m);
-	void select_current(marker *frame);
+	void select_marker(marker *frame);
 
-	static void marker_select_current(GtkWidget*, marker *frame);
+	static void marker_select_marker(GtkWidget *btn, marker *frame);
 
 	GtkWidget *scrolled_, *container_;
 	std::vector<marker> markers_;

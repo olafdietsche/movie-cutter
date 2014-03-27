@@ -51,6 +51,7 @@ void thumbnail::clear()
 	pts_ = AV_NOPTS_VALUE;
 	pict_type_ = AV_PICTURE_TYPE_NONE;
 	display_picture_number_ = coded_picture_number_ = -1;
+	remove_mark();
 }
 
 void thumbnail::set_from_avframe(AVFrame *frame)
@@ -97,4 +98,15 @@ void thumbnail::set_label(AVStream *st)
 	std::ostringstream s;
 	s << '(' << av_get_picture_type_char(pict_type_) << ") " << demuxer::format_timestamp(ts);
 	set_label(s.str());
+}
+
+void thumbnail::mark_as_selected()
+{
+	GdkColor fg = { -1, 10000, 10000, 60000 };
+	gtk_widget_modify_fg(lbl_, GTK_STATE_NORMAL, &fg);
+}
+
+void thumbnail::remove_mark()
+{
+	gtk_widget_modify_fg(lbl_, GTK_STATE_NORMAL, NULL);
 }
