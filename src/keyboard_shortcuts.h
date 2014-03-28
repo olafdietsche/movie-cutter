@@ -16,4 +16,9 @@ template<typename F, typename T> static inline void create_keyboard_shortcut(Gtk
 	create_keyboard_shortcut(accel_group, key, static_cast<GdkModifierType>(0), cb, user_data);
 }
 
+template<typename T, void (T::*method)()> void accel_method_cb(GtkAccelGroup*, GObject*, guint, GdkModifierType, T *obj)
+{
+	(obj->*method)();
+}
+
 #endif

@@ -5,26 +5,6 @@
 
 namespace {
 int ROWS = 5, COLUMNS = 5;
-
-void main_open_movie(GtkAccelGroup*, GObject*, guint, GdkModifierType, main_screen *main)
-{
-	main->open_movie();
-}
-
-void main_save_movie(GtkAccelGroup*, GObject*, guint, GdkModifierType, main_screen *main)
-{
-	main->save_movie();
-}
-
-void marker_add_start(GtkAccelGroup*, GObject*, guint, GdkModifierType, main_screen *main)
-{
-	main->add_start_marker();
-}
-
-void marker_add_stop(GtkAccelGroup*, GObject*, guint, GdkModifierType, main_screen *main)
-{
-	main->add_stop_marker();
-}
 }
 
 main_screen::main_screen()
@@ -84,10 +64,10 @@ void main_screen::add_bookmark()
 void main_screen::create_keyboard_shortcuts(GtkAccelGroup *accel_group)
 {
 	sequence_.create_keyboard_shortcuts(accel_group);
-	create_keyboard_shortcut(accel_group, 'o', GDK_CONTROL_MASK, main_open_movie, this);
-	create_keyboard_shortcut(accel_group, 's', GDK_CONTROL_MASK, main_save_movie, this);
-	create_keyboard_shortcut(accel_group, ',', marker_add_start, this);
-	create_keyboard_shortcut(accel_group, '.', marker_add_stop, this);
+	create_keyboard_shortcut(accel_group, 'o', GDK_CONTROL_MASK, accel_method_cb<main_screen, &main_screen::open_movie>, this);
+	create_keyboard_shortcut(accel_group, 's', GDK_CONTROL_MASK, accel_method_cb<main_screen, &main_screen::save_movie>, this);
+	create_keyboard_shortcut(accel_group, ',', accel_method_cb<main_screen, &main_screen::add_start_marker>, this);
+	create_keyboard_shortcut(accel_group, '.', accel_method_cb<main_screen, &main_screen::add_stop_marker>, this);
 }
 
 void main_screen::open_movie()
