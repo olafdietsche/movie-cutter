@@ -145,12 +145,11 @@ void main_screen::save_movie(const char *output_file)
 		offset = 0;
 
 	while (i != m.cend() && dmux.read_next_packet(&pkt) >= 0) {
-		while (pkt.pts >= i->start_) {
+		if (pkt.pts >= i->start_) {
 			if (pkt.pts < i->stop_) {
 				pkt.pts -= offset;
 				pkt.dts -= offset;
 				mux.write_packet(&pkt);
-				break;
 			} else {
 				int64_t stop = i->stop_;
 				++i;
