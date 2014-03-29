@@ -40,9 +40,8 @@ void frame_loop(demuxer &dmux)
 	while (dmux.read_next_packet(&pkt, video_stream_index) >= 0) {
 		AVPacket tmp = pkt;
 		do {
-			if (dmux.decode_packet(dec_ctx, &tmp)) {
+			if (AVFrame *frame = dmux.decode_packet(dec_ctx, &tmp)) {
 				if (pkt.pts >= stream_pts) {
-					AVFrame *frame = dmux.get_current_frame();
 					AVFrame *dest = conv.convert_frame(frame);
 					write_ppm_image(seconds, dest);
 					seconds += 30;

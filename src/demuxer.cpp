@@ -141,7 +141,7 @@ void demuxer::flush(AVPacket *pkt)
 		;
 }
 
-bool demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
+AVFrame *demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
 {
 	int got_frame;
 	int size;
@@ -167,7 +167,7 @@ bool demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
 		pkt->size -= size;
 	}
 
-	return got_frame;
+	return got_frame ? frame_ : 0;
 }
 
 int demuxer::read_next_packet(AVPacket *pkt)

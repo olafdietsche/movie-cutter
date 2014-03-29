@@ -82,9 +82,8 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 	       && dmux_.read_next_packet(&pkt, video_stream_index_) >= 0) {
 		AVPacket tmp = pkt;
 		do {
-			if (dmux_.decode_packet(dec_ctx, &tmp)) {
+			if (AVFrame *frame = dmux_.decode_packet(dec_ctx, &tmp)) {
 				if (step <= minimum_step_ || pkt.pts >= start) {
-					AVFrame *frame = dmux_.get_current_frame();
 					AVFrame *dest = conv.convert_frame(frame);
 					i->set_from_avframe(dest);
 					i->set_label(video_stream);
@@ -124,9 +123,8 @@ GdkPixbuf *frame_sequence::get_current_pixbuf()
 	while (dmux_.read_next_packet(&pkt, video_stream_index_) >= 0) {
 		AVPacket tmp = pkt;
 		do {
-			if (dmux_.decode_packet(dec_ctx, &tmp)) {
+			if (AVFrame *frame = dmux_.decode_packet(dec_ctx, &tmp)) {
 				if (pkt.pts >= current_frame_->get_pts()) {
-					AVFrame *frame = dmux_.get_current_frame();
 					AVFrame *dest = conv.convert_frame(frame);
 					return thumbnail::gdk_pixbuf_new_from_avframe(dest);
 				}

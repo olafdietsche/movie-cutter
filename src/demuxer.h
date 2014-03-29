@@ -21,7 +21,6 @@ public:
 		return av_find_best_stream(fmt_ctx_, codec_type, -1, -1, NULL, 0);
 	}
 	AVStream *get_stream(int i) { return fmt_ctx_->streams[i]; }
-	AVFrame *get_current_frame() { return frame_; }
 	static int64_t normalize_timestamp(AVStream *st, int64_t ts);
 	static int64_t start_timestamp(AVStream *st);
 	static int64_t rescale_timestamp(AVStream *st, int64_t ts);
@@ -37,7 +36,7 @@ public:
 
 	int read_next_packet(AVPacket *pkt);
 	int read_next_packet(AVPacket *pkt, int stream_index);
-	bool decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt);
+	AVFrame *decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt);
 	void flush(AVPacket *pkt);
 
 	int seek(int stream_index, int64_t pts);
