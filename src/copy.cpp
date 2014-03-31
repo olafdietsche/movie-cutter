@@ -17,9 +17,6 @@ void frame_loop(muxer &mux, demuxer &dmux)
 		mux.write_packet(&pkt);
 		av_free_packet(&pkt);
 	}
-
-	// flush cached frames
-	dmux.flush(&pkt);
 }
 
 int main(int argc, char **argv)

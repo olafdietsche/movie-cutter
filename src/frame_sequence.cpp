@@ -104,8 +104,6 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 	for (; i != frames_.end(); ++i)
 		i->clear();
 
-	// flush cached frames
-	dmux_.flush(&pkt);
 	select_frame(&frames_[0]);
 }
 

@@ -132,12 +132,15 @@ int demuxer::seek(int stream_index, int64_t pts)
 	return err;
 }
 
-void demuxer::flush(AVPacket *pkt)
+void demuxer::flush(int stream_index)
 {
-	AVStream *st = get_stream(pkt->stream_index);
-	pkt->data = NULL;
-	pkt->size = 0;
-	while (decode_packet(st->codec, pkt))
+	AVStream *st = get_stream(stream_index);
+	AVCodecContext *dec_ctx = st->codec;
+	AVPacket pkt;
+	av_init_packet(&pkt);
+	pkt.data = NULL;
+	pkt.size = 0;
+	while (decode_packet(dec_ctx, &pkt))
 		;
 }
 

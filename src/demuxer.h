@@ -37,7 +37,7 @@ public:
 	int read_next_packet(AVPacket *pkt);
 	int read_next_packet(AVPacket *pkt, int stream_index);
 	AVFrame *decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt);
-	void flush(AVPacket *pkt);
+	void flush(int stream_index);
 
 	int seek(int stream_index, int64_t pts);
 private:

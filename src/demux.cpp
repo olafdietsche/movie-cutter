@@ -55,9 +55,6 @@ void frame_loop(demuxer &dmux)
 
 		av_free_packet(&pkt);
 	}
-
-	// flush cached frames
-	dmux.flush(&pkt);
 }
 
 int main(int argc, char **argv)

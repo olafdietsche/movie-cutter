@@ -162,7 +162,4 @@ void main_screen::save_movie(const char *output_file)
 
 		av_free_packet(&pkt);
 	}
-
-	// flush cached frames
-	dmux.flush(&pkt);
 }
