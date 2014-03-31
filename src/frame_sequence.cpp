@@ -47,6 +47,7 @@ int frame_sequence::update_sequence(const char *filename)
 	int err = dmux_.open_input(filename);
 	if (err >= 0) {
 		video_stream_index_ = dmux_.get_stream_index(AVMEDIA_TYPE_VIDEO);
+		dmux_.index_stream(video_stream_index_);
 		AVStream *video_stream = dmux_.get_stream(video_stream_index_);
 		current_0_ = demuxer::rescale_timestamp(video_stream, START_PTS);
 		int64_t stream_step = demuxer::rescale_timestamp(video_stream, START_PTS + STEP_PTS);
@@ -68,38 +69,25 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 
 	current_step_ = step;
 
-	AVPacket pkt;
-	av_init_packet(&pkt);
-	pkt.data = NULL;
-	pkt.size = 0;
 	AVStream *video_stream = dmux_.get_stream(video_stream_index_);
 	AVCodecContext *dec_ctx = video_stream->codec;
-	dmux_.seek(video_stream_index_, start);
 	converter conv(video_stream, AV_PIX_FMT_RGB24, thumbnail::DEFAULT_WIDTH);
-	n_frames_ = 0;
 	auto i = frames_.begin();
-	while (i != frames_.end()
-	       && dmux_.read_next_packet(&pkt, video_stream_index_) >= 0) {
-		AVPacket tmp = pkt;
-		do {
-			if (AVFrame *frame = dmux_.decode_packet(dec_ctx, &tmp)) {
-				if (step <= minimum_step_ || pkt.pts >= start) {
-					AVFrame *dest = conv.convert_frame(frame);
-					i->set_from_avframe(dest);
-					i->set_label(video_stream);
-					++i;
-					n_frames_ = std::distance(frames_.begin(), i);
-					start += step;
-					if (step > minimum_step_)
-						dmux_.seek(video_stream_index_, start);
+	for (; i != frames_.end(); ++i) {
+		if (dmux_.seek_to_keyframe(video_stream_index_, start) < 0)
+			break;
 
-					//break;
-				}
-			}
-		} while (tmp.size > 0);
+		AVFrame *frame = dmux_.decode_packets_until(dec_ctx, video_stream_index_, start);
+		if (!frame)
+			break;
 
-		av_free_packet(&pkt);
+		AVFrame *dest = conv.convert_frame(frame);
+		i->set_from_avframe(dest);
+		i->set_label(video_stream);
+		start += step;
 	}
+
+	n_frames_ = std::distance(frames_.begin(), i);
 
 	for (; i != frames_.end(); ++i)
 		i->clear();
@@ -109,30 +97,18 @@ void frame_sequence::update_sequence(int64_t start, int64_t step)
 
 GdkPixbuf *frame_sequence::get_current_pixbuf()
 {
-	AVPacket pkt;
-	av_init_packet(&pkt);
-	pkt.data = NULL;
-	pkt.size = 0;
 	AVStream *video_stream = dmux_.get_stream(video_stream_index_);
 	AVCodecContext *dec_ctx = video_stream->codec;
 	int width = container_->allocation.width;
 	converter conv(video_stream, AV_PIX_FMT_RGB24, width);
-	dmux_.seek(video_stream_index_, current_frame_->get_pts());
-	while (dmux_.read_next_packet(&pkt, video_stream_index_) >= 0) {
-		AVPacket tmp = pkt;
-		do {
-			if (AVFrame *frame = dmux_.decode_packet(dec_ctx, &tmp)) {
-				if (pkt.pts >= current_frame_->get_pts()) {
-					AVFrame *dest = conv.convert_frame(frame);
-					return thumbnail::gdk_pixbuf_new_from_avframe(dest);
-				}
-			}
-		} while (tmp.size > 0);
-
-		av_free_packet(&pkt);
+	int64_t pts = current_frame_->get_pts();
+	dmux_.seek_to_keyframe(video_stream_index_, pts);
+	if (AVFrame *frame = dmux_.decode_packets_until(dec_ctx, video_stream_index_, pts)) {
+		AVFrame *dest = conv.convert_frame(frame);
+		return thumbnail::gdk_pixbuf_new_from_avframe(dest);
 	}
 
-	return NULL;
+	return 0;
 }
 
 void frame_sequence::goto_first_frame()

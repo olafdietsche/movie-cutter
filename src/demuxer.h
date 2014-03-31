@@ -9,6 +9,7 @@ extern "C" {
 #include <deque>
 #include <functional>
 #include <string>
+#include <vector>
 
 class demuxer {
 public:
@@ -37,15 +38,28 @@ public:
 	int read_next_packet(AVPacket *pkt);
 	int read_next_packet(AVPacket *pkt, int stream_index);
 	AVFrame *decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt);
+	AVFrame *decode_packets_until(AVCodecContext *dec_ctx, int stream_index, int64_t pts);
 	void flush(int stream_index);
 
 	int seek(int stream_index, int64_t pts);
+	int seek_to_keyframe(int stream_index, int64_t pts);
+	void index_stream(int stream_index = -1);
 private:
-	demuxer(const demuxer &);
-	demuxer &operator=(const demuxer &);
+	struct index_entry {
+		static bool cmp(const index_entry &e, int64_t pts) {
+			return e.pts_ < pts;
+		}
+
+		int64_t pos_;
+		int64_t pts_;
+	};
 
 	AVFormatContext *fmt_ctx_;
 	AVFrame *frame_;
+	std::vector<index_entry> index_;
+
+	demuxer(const demuxer &);
+	demuxer &operator=(const demuxer &);
 };
 
 #endif

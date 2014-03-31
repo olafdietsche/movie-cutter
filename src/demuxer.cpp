@@ -4,6 +4,7 @@ extern "C" {
 #include "libavutil/mathematics.h"
 }
 
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
 
@@ -122,13 +123,45 @@ int demuxer::seek(int stream_index, int64_t pts)
 {
 	AVStream *st = get_stream(stream_index);
 	AVCodecContext *codec = st->codec;
-	av_log(codec, AV_LOG_DEBUG, "demuxer::seek(%d, %ld)\n", stream_index, pts);
+
 	avcodec_flush_buffers(codec);
 	pts -= codec->gop_size * demuxer::ticks_per_frame(st);
 	int err = avformat_seek_file(fmt_ctx_, stream_index, INT64_MIN, pts, pts, 0);
 	if (err < 0)
 		av_log(fmt_ctx_, AV_LOG_ERROR, "avformat_seek_file: err=%s\n", av_err2str(err));
 
+	return err;
+}
+
+int demuxer::seek_to_keyframe(int stream_index, int64_t pts)
+{
+	AVStream *st = get_stream(stream_index);
+	AVCodecContext *codec = st->codec;
+
+	// lookup index_entry
+	auto i = std::lower_bound(index_.cbegin(), index_.cend(), pts, index_entry::cmp);
+	if (i == index_.cend()) {
+		av_log(codec, AV_LOG_ERROR, "demuxer::seek_to_keyframe(%d, %ld), pts not found\n", stream_index, pts);
+		return -1;
+	}
+
+	int64_t pos = 0;
+	if (i->pts_ <= pts) {
+		pos = i->pos_;
+	} else {
+		if (i == index_.cbegin()) {
+			av_log(codec, AV_LOG_ERROR, "demuxer::seek_to_keyframe, seek to beginning\n");
+		} else {
+			--i;
+			pos = i->pos_;
+		}
+	}
+
+	int err = avformat_seek_file(fmt_ctx_, stream_index, INT64_MIN, pos, pos, AVSEEK_FLAG_BYTE);
+	if (err < 0)
+		av_log(codec, AV_LOG_ERROR, "avformat_seek_file: err=%s\n", av_err2str(err));
+
+	avcodec_flush_buffers(codec);
 	return err;
 }
 
@@ -173,6 +206,28 @@ AVFrame *demuxer::decode_packet(AVCodecContext *dec_ctx, AVPacket *pkt)
 	return got_frame ? frame_ : 0;
 }
 
+AVFrame *demuxer::decode_packets_until(AVCodecContext *dec_ctx, int stream_index, int64_t pts)
+{
+	AVPacket pkt;
+	av_init_packet(&pkt);
+	pkt.data = NULL;
+	pkt.size = 0;
+
+	while (read_next_packet(&pkt, stream_index) >= 0) {
+		AVPacket tmp = pkt;
+		do {
+			if (AVFrame *frame = decode_packet(dec_ctx, &tmp)) {
+				if (frame->pkt_pts >= pts)
+					return frame;
+			}
+		} while (tmp.size > 0);
+
+		av_free_packet(&pkt);
+	}
+
+	return 0;
+}
+
 int demuxer::read_next_packet(AVPacket *pkt)
 {
 	return av_read_frame(fmt_ctx_, pkt);
@@ -189,4 +244,27 @@ int demuxer::read_next_packet(AVPacket *pkt, int stream_index)
 	}
 
 	return err;
+}
+
+void demuxer::index_stream(int stream_index)
+{
+	AVPacket pkt;
+	av_init_packet(&pkt);
+	pkt.data = NULL;
+	pkt.size = 0;
+
+	int n_packets = 0;
+	while (read_next_packet(&pkt) >= 0) {
+		if (stream_index == -1 || pkt.stream_index == stream_index) {
+			++n_packets;
+			if (pkt.flags & AV_PKT_FLAG_KEY) {
+				index_entry entry = { pkt.pos, pkt.pts };
+				index_.push_back(entry);
+			}
+		}
+
+		av_free_packet(&pkt);
+	}
+
+	av_log(fmt_ctx_, AV_LOG_INFO, "st=%d, packets=%d, key packets=%ld\n", stream_index, n_packets, index_.size());
 }
